@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paru’s Circle</title>
+<meta name="theme-color" content="#221C35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Circle">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F3FA; --surface:#FFFFFF; --ink:#221C35; --muted:#6B6580; --line:#E2DFEC;
+  --pink:#D93A6E; --indigo:#4648D0; --amber:#B97500;
+  --bubble-them:#FFFFFF; --wall-dot:#DAD6E8;
+  --accent:var(--pink);
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14121D; --surface:#1E1B2B; --ink:#EFECF7; --muted:#A39DB7; --line:#2E2A3F;
+    --pink:#FF6B98; --indigo:#8E91FF; --amber:#F0B13A; --bubble-them:#25213A; --wall-dot:#262236;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14121D; --surface:#1E1B2B; --ink:#EFECF7; --muted:#A39DB7; --line:#2E2A3F;
+  --pink:#FF6B98; --indigo:#8E91FF; --amber:#F0B13A; --bubble-them:#25213A; --wall-dot:#262236;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;max-width:760px;margin:0 auto;position:relative;overflow:hidden;background:var(--paper)}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--paper)}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Home */
+.home-top{padding:28px 22px 8px}
+.home-top h1{font-family:var(--display);font-weight:800;font-size:clamp(44px,13vw,72px);line-height:.95;letter-spacing:-.03em;margin:0}
+.home-top p{margin:10px 0 0;color:var(--muted)}
+.list{list-style:none;margin:18px 0 0;padding:0;overflow-y:auto;flex:1}
+.row{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:14px 22px;border-bottom:1px solid var(--line)}
+.row:hover{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.av{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;font-size:22px}
+.av.sm{width:40px;height:40px;font-size:17px}
+.av.xl{width:132px;height:132px;font-size:54px}
+.av svg{width:55%;height:55%}
+.av-friend{background:var(--pink)} .av-mentor{background:var(--indigo)} .av-debate{background:var(--amber)}
+.row-main{flex:1;min-width:0}
+.row-name{font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:8px}
+.row-name time{font-weight:500;font-size:12px;color:var(--muted)}
+.row-sub{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-foot{padding:14px 22px 18px;color:var(--muted);font-size:13px}
+.home-foot button{background:none;border:0;padding:0;text-decoration:underline;color:var(--muted);font-size:13px}
+
+/* Chat */
+.bar{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 6px;background:var(--surface);border-bottom:1px solid var(--line);z-index:2}
+.icon-btn{background:none;border:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+.icon-btn:hover{background:var(--paper)}
+.icon-btn svg{width:22px;height:22px}
+.bar-who{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;text-align:left;padding:0}
+.bar-name{display:block;font-weight:700;font-size:17px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-status{display:block;font-size:12.5px;color:var(--muted)}
+.bar-status.live{color:var(--accent)}
+.pill{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.msgs{flex:1;overflow-y:auto;padding:16px 12px 8px;background-color:var(--paper);background-image:radial-gradient(var(--wall-dot) 1px,transparent 1.2px);background-size:18px 18px}
+.day{align-self:center;text-align:center;margin:8px auto;font-size:12px;color:var(--muted);background:var(--surface);border-radius:8px;padding:3px 10px;width:max-content}
+.b{max-width:min(80%,520px);padding:8px 11px 6px;border-radius:14px;margin:3px 0;position:relative;word-wrap:break-word;white-space:normal;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 8%,transparent)}
+.b .t{font-size:11px;color:var(--muted);float:right;margin:6px 0 -4px 10px}
+.b.me{margin-left:auto;background:color-mix(in srgb,var(--accent) 16%,var(--surface));border-top-right-radius:4px}
+.b.them{background:var(--bubble-them);border-top-left-radius:4px}
+.b.sys{margin:10px auto;max-width:92%;background:var(--surface);border:1px dashed var(--line);font-size:14px;border-radius:10px}
+.b .callmark{font-size:11px;color:var(--muted);margin-right:4px}
+.fix{margin-top:6px;border-top:1px solid color-mix(in srgb,var(--accent) 30%,transparent);padding-top:5px;font-size:13.5px}
+.fix div{margin:3px 0}
+.fix s{color:var(--muted)}
+.fix b{color:var(--accent)}
+.fix i{color:var(--muted);font-style:normal;font-size:12.5px;display:block}
+.typing{display:inline-flex;gap:4px;padding:4px 2px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bob 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+.compose{display:flex;gap:8px;align-items:flex-end;padding:8px 10px 10px;background:var(--paper)}
+.compose textarea{flex:1;resize:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:22px;padding:11px 16px;font:inherit;max-height:140px;line-height:1.4}
+.send{width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
+.send svg{width:22px;height:22px}
+.send.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.send.rec{background:var(--accent);color:#fff;animation:pulse 1.2s infinite}
+.note{font-size:13px;color:var(--muted);text-align:center;padding:4px 16px}
+
+/* Debate topics */
+.scroll{flex:1;overflow-y:auto;padding:0 0 24px}
+.sec{padding:18px 18px 4px}
+.sec h2{font-family:var(--display);font-size:24px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+.sec p.lead{margin:0 0 10px;color:var(--muted);font-size:14px}
+.news{border-top:1px solid var(--line);padding:14px 0}
+.news .tag{font-size:12px;font-weight:700;color:var(--amber)}
+.news h3{margin:2px 0 4px;font-size:16.5px;line-height:1.3}
+.news p{margin:0 0 8px;font-size:14.5px;color:var(--muted)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
+.motion{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0}
+.motion span{font-weight:600;font-size:15px}
+.field{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit;resize:vertical}
+.hist{border-top:1px solid var(--line);padding:11px 0;display:flex;gap:10px;align-items:center;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.hist b{display:block;font-size:15px}
+.hist small{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:8px 18px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+
+/* Sheet */
+.scrim{position:absolute;inset:0;background:color-mix(in srgb,#000 45%,transparent);z-index:20;display:flex;align-items:flex-end}
+.sheet{background:var(--surface);width:100%;max-height:88%;overflow-y:auto;border-radius:22px 22px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet h2{font-family:var(--display);font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+.sheet h3{font-size:15px;margin:18px 0 6px}
+.sheet ul{margin:0;padding-left:18px}
+.sheet li{margin:3px 0;font-size:14.5px}
+.sheet .muted{color:var(--muted);font-size:14px}
+.score{display:grid;grid-template-columns:110px 1fr 34px;gap:10px;align-items:center;margin:6px 0;font-size:14px}
+.track{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.sheet-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+label.lab{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+
+/* Call */
+.call{position:absolute;inset:0;z-index:30;background:var(--ink);color:var(--paper);display:flex;flex-direction:column;align-items:center;padding:28px 20px 26px}
+.call .who{font-family:var(--display);font-size:34px;font-weight:800;margin:18px 0 0;letter-spacing:-.02em}
+.call .clock{opacity:.7;font-variant-numeric:tabular-nums}
+.call .orb{margin-top:34px;position:relative;display:grid;place-items:center}
+.call .orb::before{content:"";position:absolute;inset:-16px;border-radius:50%;border:3px solid var(--accent);opacity:0;transform:scale(.9)}
+.call.speaking .orb::before{animation:ring 1.3s ease-out infinite}
+.call.listening .orb::before{opacity:.55;transform:scale(1)}
+@keyframes ring{0%{opacity:.8;transform:scale(.92)}100%{opacity:0;transform:scale(1.25)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
+.call .state{margin-top:30px;font-weight:600;font-size:15px;opacity:.85}
+.call .caption{margin-top:10px;min-height:48px;max-width:520px;text-align:center;font-size:16px;opacity:.9}
+.call .live{width:100%;max-width:520px;margin-top:10px;font-size:13.5px;flex:1;overflow-y:auto;opacity:.92}
+.call .live .k{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
+.call .live .k b{font-size:20px;display:block;text-align:center;font-family:var(--display)}
+.call .live .k span{font-size:12px;opacity:.7}
+.call .live .c{border-top:1px solid color-mix(in srgb,var(--paper) 18%,transparent);padding:6px 0}
+.call .typebox{display:flex;gap:8px;width:100%;max-width:520px;margin-top:10px}
+.call .typebox input{flex:1;border-radius:22px;border:0;padding:12px 16px;font:inherit;background:color-mix(in srgb,var(--paper) 92%,transparent);color:var(--ink)}
+.call .ctrls{display:flex;gap:26px;margin-top:16px}
+.cbtn{width:64px;height:64px;border-radius:50%;border:0;display:grid;place-items:center;background:color-mix(in srgb,var(--paper) 16%,transparent);color:var(--paper)}
+.cbtn svg{width:26px;height:26px}
+.cbtn.end{background:#E0344B;color:#fff}
+.cbtn[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+.clabel{font-size:12px;text-align:center;margin-top:6px;opacity:.75}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- HOME -->
+  <section class="view" id="home">
+    <div class="home-top">
+      <h1>Hey Paru</h1>
+      <p id="homeDate"></p>
+    </div>
+    <ul class="list" id="homeList"></ul>
+    <div class="home-foot" id="homeFoot"></div>
+  </section>
+
+  <!-- CHAT (friend / mentor / debate session) -->
+  <section class="view" id="chat" hidden>
+    <header class="bar">
+      <button class="icon-btn" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="bar-who" id="whoBtn">
+        <span class="av sm" id="chatAv"></span>
+        <span style="min-width:0"><span class="bar-name" id="chatName"></span><span class="bar-status" id="chatStatus">online</span></span>
+      </button>
+      <button class="pill" id="judgeBtn" hidden>Judge</button>
+      <button class="icon-btn" id="callBtn" aria-label="Voice call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></button>
+      <button class="icon-btn" id="moreBtn" aria-label="Settings"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+    </header>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="compose">
+      <textarea id="input" rows="1" placeholder="Message"></textarea>
+      <button class="send ghost" id="dictBtn" aria-label="Dictate" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button>
+      <button class="send" id="sendBtn" aria-label="Send"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20l18-8L3 4v6l12 2-12 2z"/></svg></button>
+    </div>
+  </section>
+
+  <!-- DEBATE HOME -->
+  <section class="view" id="debateHome" hidden>
+    <header class="bar">
+      <button class="icon-btn" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="av sm av-debate" id="dAv"></span>
+      <span style="flex:1"><span class="bar-name">Debate Arena</span><span class="bar-status" id="newsStamp">current affairs</span></span>
+      <button class="icon-btn" id="dMoreBtn" aria-label="Debate profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
+    </header>
+    <div class="scroll">
+      <div class="sec">
+        <h2>Pick your own motion</h2>
+        <textarea class="field" id="customMotion" rows="2" placeholder="e.g. This house believes India should ban phones in college classrooms"></textarea>
+        <div class="acts" style="margin-top:8px"><button class="btn solid" id="customGo">Set up debate</button></div>
+      </div>
+      <div class="sec">
+        <h2>What’s happening</h2>
+        <p class="lead" id="newsLead"></p>
+        <div class="acts" style="margin-bottom:6px"><button class="btn" id="refreshNews">Refresh news</button></div>
+        <div id="newsList"></div>
+      </div>
+      <div class="sec">
+        <h2>Hot motions</h2>
+        <div id="motionList"></div>
+      </div>
+      <div class="sec">
+        <h2>Your past debates</h2>
+        <div id="histList"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="sheetHost"></div>
+  <div id="callHost"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- small helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>").replace(/\n/g,"<br>");
+const uid = () => Math.random().toString(36).slice(2,10);
+const hhmm = ts => new Date(ts).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"});
+const nowLong = () => new Date().toLocaleString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"numeric",minute:"2-digit"});
+const stripEmoji = s => s.replace(/\p{Extended_Pictographic}|\u200d|\ufe0f/gu,"").replace(/[*_#`>]/g,"").replace(/\s+/g," ").trim();
+const ls = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+const ICONS = {
+  friend: null,
+  mentor: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M8 21h8"/></svg>',
+  debate: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 21h14M4 7h16M7 7l-3 7a3 3 0 006 0zM17 7l-3 7a3 3 0 006 0z"/></svg>'
+};
+const MODES = {
+  friend:{ name:"Ishradda", sub:"your bestie", accent:"--pink", av:"I" },
+  mentor:{ name:"Mentor", sub:"speaking, grammar & confidence coach", accent:"--indigo" },
+  debate:{ name:"Debate Arena", sub:"argue about what’s happening", accent:"--amber" }
+};
+function avHTML(mode, cls=""){ return `<span class="av ${cls} av-${mode}" aria-hidden="true">${ICONS[mode] || esc(MODES[mode].av)}</span>`; }
+
+
+/* ---------- AI connection (your own API key) ---------- */
+function parseJSON(t){
+  const tryP = x=>{ try{ return JSON.parse(x); }catch(e){ return undefined; } };
+  let v = tryP(t); if(v !== undefined) return v;
+  const f = t.match(/```(?:json)?\s*([\s\S]*?)```/); if(f){ v = tryP(f[1]); if(v !== undefined) return v; }
+  const a = Math.min(...["{","["].map(c=>{ const i = t.indexOf(c); return i < 0 ? Infinity : i; }));
+  const b = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+  if(a < b){ v = tryP(t.slice(a, b+1)); if(v !== undefined) return v; }
+  throw { code:"invalid_json", text:t };
+}
+async function httpErr(res){
+  let msg = ""; try{ const j = await res.json(); msg = (j.error && (j.error.message || j.error.type)) || JSON.stringify(j); }catch(e){}
+  const m = (msg||"").toLowerCase();
+  if(res.status === 429 || /quota|rate/.test(m)) return { code:"rate_limited", message:msg };
+  if(/api key|api_key|authentication|x-api-key|permission/.test(m) || res.status === 401 || res.status === 403) return { code:"bad_key", message:msg };
+  if(res.status === 404 || /not found|model/.test(m) && res.status === 400) return { code:"bad_model", message:msg };
+  return { code:"upstream_error", message:msg || ("HTTP " + res.status) };
+}
+function makeAI(){
+  async function gemini(c, system, turns, opts, quick, wantJson){
+    const model = quick ? (c.gQuick || "gemini-3.5-flash-lite") : (c.gModel || "gemini-3.5-flash-lite");
+    const body = { contents: turns.map(t=>({ role: t.role === "assistant" ? "model" : "user", parts:[{ text:t.content }] })), generationConfig:{ temperature: wantJson ? 0.4 : 0.9 } };
+    if(system) body.systemInstruction = { parts:[{ text:system }] };
+    if(opts.search) body.tools = [{ google_search:{} }];
+    else if(wantJson) body.generationConfig.responseMimeType = "application/json";
+    const stream = !!opts.onText;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:${stream ? "streamGenerateContent?alt=sse&" : "generateContent?"}key=${encodeURIComponent(c.key)}`;
+    let res;
+    try{ res = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(body) }); }
+    catch(e){ throw { code:"network" }; }
+    if(!res.ok){
+      const err = await httpErr(res);
+      const sug = (err.message || "").match(/use (?:models\/)?(gemini-[\w.\-]+)/i);
+      if(sug && sug[1] !== model && !opts._retried){
+        S.settings.ai[quick ? "gQuick" : "gModel"] = sug[1]; ls.set("circle.settings", S.settings);
+        return gemini(c, system, turns, { ...opts, _retried:true }, quick, wantJson);
+      }
+      throw err;
+    }
+    const pick = j => ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || []).filter(p=>!p.thought).map(p=>p.text || "").join("");
+    if(!stream){ const j = await res.json(); const t = pick(j); if(!t) throw { code: j.promptFeedback ? "refused" : "empty_completion" }; return t; }
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "", full = "";
+    for(;;){
+      const { done, value } = await reader.read(); if(done) break;
+      buf += dec.decode(value, { stream:true });
+      let i;
+      while((i = buf.indexOf("\n")) >= 0){
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i+1);
+        if(!line.startsWith("data:")) continue;
+        try{ const d = pick(JSON.parse(line.slice(5))); if(d){ full += d; opts.onText({ text:full, delta:d }); } }catch(e){}
+      }
+    }
+    if(!full) throw { code:"empty_completion" };
+    return full;
+  }
+  async function anthropic(c, system, turns, opts, quick){
+    const model = quick ? (c.aQuick || "claude-haiku-5-5") : (c.aModel || "claude-sonnet-5-5");
+    const body = { model, max_tokens:1500, messages:turns };
+    if(system) body.system = system;
+    if(opts.search) body.tools = [{ type:"web_search_20250305", name:"web_search", max_uses:4 }];
+    let res;
+    try{ res = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{ "content-type":"application/json", "x-api-key":c.key, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" }, body:JSON.stringify(body) }); }
+    catch(e){ throw { code:"network" }; }
+    if(!res.ok) throw await httpErr(res);
+    const j = await res.json();
+    const t = (j.content || []).filter(b=>b.type === "text").map(b=>b.text).join("").trim();
+    if(!t) throw { code:"empty_completion" };
+    if(opts.onText) opts.onText({ text:t, delta:t });
+    return t;
+  }
+  async function call(input, opts, wantJson){
+    const c = S.settings.ai || {};
+    if(!c.key) throw { code:"no_key" };
+    let system = "", turns;
+    if(typeof input === "string") turns = [{ role:"user", content:input }];
+    else { turns = input.slice(); if(turns.length > 1 && turns[0].role === "user") system = turns.shift().content; }
+    const merged = [];
+    for(const t of turns){ const last = merged[merged.length-1]; if(last && last.role === t.role) last.content += "\n\n" + t.content; else merged.push({ role:t.role, content:t.content }); }
+    if(!merged.length || merged[0].role !== "user") merged.unshift({ role:"user", content:"(start of conversation)" });
+    if(merged[merged.length-1].role !== "user") merged.push({ role:"user", content:"(continue)" });
+    if(wantJson) system += "\n\nRespond with only valid JSON and nothing else.";
+    const quick = opts.modelTier === "quick";
+    return c.provider === "anthropic" ? anthropic(c, system, merged, opts, quick) : gemini(c, system, merged, opts, quick, wantJson);
+  }
+  const fn = async (input, opts = {}) => ({ text: await call(input, opts, false), truncated:false });
+  fn.json = async (input, opts = {}) => parseJSON(await call(input, opts, true));
+  return fn;
+}
+const hasKey = () => !!(S.settings.ai && S.settings.ai.key);
+
+const DEFAULT_NEWS = {"updatedAt": "7 Nov 2026", "ts": 0, "items": [{"tag": "World politics", "title": "Democrats win both houses of the US Congress", "summary": "In the 3 November US midterms, Democrats took control of the House and the Senate, a major setback for President Trump and the Republicans. Trump said he would accept the results and work with Democrats.", "motion": "This house believes midterm elections are good for democracy because they check the ruling party"}, {"tag": "Markets & tech", "title": "Global markets fall on AI regulation fears", "summary": "On 6 November stock markets slid worldwide, with South Korea's KOSPI dropping below 5,000 and Sensex and Nifty falling in early trade, as investors worried about tighter rules on AI.", "motion": "This house believes strict AI regulation will hurt innovation more than it protects people"}, {"tag": "India · AI policy", "title": "India to publish an AI regulation consultation paper", "summary": "IT Minister Ashwini Vaishnaw has said India will release a consultation paper on regulating AI in November 2026.", "motion": "This house believes India should regulate AI lightly to become a global AI hub"}, {"tag": "Climate", "title": "COP31 climate summit opens in Antalya on 9 November", "summary": "The UN climate conference runs 9 to 20 November in Antalya, Türkiye. Focus areas include implementing climate goals, stronger national climate plans and climate finance.", "motion": "This house believes rich countries should pay for climate damage in developing countries"}, {"tag": "India · Disaster", "title": "Cyclone Murasu hits the Andhra Pradesh coast", "summary": "Cyclone Murasu, a name proposed by India, made landfall on the Andhra Pradesh coast in early November.", "motion": ""}, {"tag": "India · Science", "title": "Aditya-L1 spots a solar flare expanding unevenly", "summary": "India's solar observatory Aditya-L1 recorded asymmetric expansion of a solar flare, data that helps forecast space weather.", "motion": "This house believes India should prioritise space science over prestige missions"}], "motions": ["This house believes college attendance should be optional for engineering students", "This house believes AI tutors will replace most coaching centres in India", "This house would ban smartphones in classrooms", "This house believes social media does more harm than good to Gen Z"]};
+
+/* ---------- state ---------- */
+const S = {
+  sample:null, db:null, userId:null, memOK:false,
+  data:{
+    friend:{ msgs:[], memory:{summary:"",facts:[]}, memIdx:0 },
+    mentor:{ msgs:[], memory:{summary:"",facts:[],scores:null,focus:[],plan:[],mistakes:[],wins:[]}, memIdx:0, calls:[] },
+    debate:{ sessions:[], active:null, memory:{summary:"",strengths:[],weaknesses:[]} }
+  },
+  news:null,
+  mode:"friend",
+  busy:false,
+  settings: ls.get("circle.settings", { voice:{}, rate:1.05, pitch:{friend:1.12, mentor:0.95, debate:1} })
+};
+
+/* ---------- boot ---------- */
+function boot(){
+  $("homeDate").textContent = new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
+  S.sample = makeAI();
+  ["friend","mentor","debate"].forEach(k=>{ const d = ls.get("circle.data."+k, null); if(d) Object.assign(S.data[k], d); });
+  S.news = ls.get("circle.news", DEFAULT_NEWS);
+  S.memOK = true;
+  setFoot(); renderHome();
+  if(!hasKey()) setupSheet(true);
+}
+function setFoot(){
+  const f = $("homeFoot");
+  f.innerHTML = `${hasKey() ? "Saved on this device. Back up now and then so you never lose memory." : "Add your free AI key to start."} <br><button id="setBtn">AI settings</button> · <button id="bkBtn">Back up</button> · <button id="rsBtn">Restore</button> · <button id="themeBtn">Theme</button>`;
+  $("themeBtn").onclick = cycleTheme;
+  $("setBtn").onclick = ()=> setupSheet(false);
+  $("bkBtn").onclick = backup;
+  $("rsBtn").onclick = restore;
+}
+function backup(){
+  const blob = new Blob([JSON.stringify({ app:"paru-circle", v:1, at:new Date().toISOString(), data:S.data, news:S.news }, null, 1)], { type:"application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `circle-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+function restore(){
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json,application/json";
+  inp.onchange = async ()=>{
+    try{
+      const j = JSON.parse(await inp.files[0].text());
+      if(j.app !== "paru-circle" || !j.data) throw 0;
+      if(!confirm("Replace the chats and memory on this device with this backup?")) return;
+      ["friend","mentor","debate"].forEach(k=>{ if(j.data[k]){ S.data[k] = j.data[k]; ls.set("circle.data."+k, j.data[k]); } });
+      if(j.news){ S.news = j.news; ls.set("circle.news", j.news); }
+      renderHome(); alert("Backup restored.");
+    }catch(e){ alert("That file isn’t a Circle backup."); }
+  };
+  inp.click();
+}
+function setupSheet(first){
+  const a = S.settings.ai || {};
+  sheet(`<h2>${first ? "Connect the AI" : "AI settings"}</h2>
+    <p class="muted">The app talks to the AI with your own key. It’s stored only on this device.</p>
+    <label class="lab" for="prov">AI provider</label>
+    <select class="field" id="prov"><option value="gemini" ${a.provider!=="anthropic"?"selected":""}>Google Gemini (free tier, live Google Search)</option><option value="anthropic" ${a.provider==="anthropic"?"selected":""}>Claude API (paid, pay per use)</option></select>
+    <div id="howG"><h3>Get a free Gemini key</h3><ul>
+      <li>Open <b>aistudio.google.com/apikey</b> and sign in with Google.</li>
+      <li>Tap <b>Create API key</b> and copy it.</li>
+      <li>Paste it below and tap Save &amp; test.</li></ul></div>
+    <div id="howA" hidden><h3>Get a Claude API key</h3><ul><li>Open <b>console.anthropic.com</b>, add credits, create a key, paste it below.</li></ul></div>
+    <label class="lab" for="key">API key</label>
+    <input class="field" id="key" type="password" autocomplete="off" value="${esc(a.key||"")}" placeholder="Paste your key">
+    <details style="margin-top:12px"><summary class="muted">Advanced: model names</summary>
+      <label class="lab" for="m1">Main model</label><input class="field" id="m1" value="${esc(a.provider==="anthropic" ? (a.aModel||"claude-sonnet-5-5") : (a.gModel||"gemini-3.5-flash-lite"))}">
+      <label class="lab" for="m2">Fast model (chat and calls)</label><input class="field" id="m2" value="${esc(a.provider==="anthropic" ? (a.aQuick||"claude-haiku-5-5") : (a.gQuick||"gemini-3.5-flash-lite"))}">
+      <p class="muted">Change these only if you get a “model not found” error.</p>
+    </details>
+    <p class="muted" id="testOut" style="margin-top:12px"></p>
+    <div class="sheet-acts"><button class="btn solid" id="saveK">Save &amp; test</button>${first ? "" : '<button class="btn" id="cls">Close</button>'}</div>`, el=>{
+    const prov = el.querySelector("#prov");
+    const sync = ()=>{ const g = prov.value === "gemini"; el.querySelector("#howG").hidden = !g; el.querySelector("#howA").hidden = g;
+      el.querySelector("#m1").value = g ? (a.gModel||"gemini-3.5-flash-lite") : (a.aModel||"claude-sonnet-5-5");
+      el.querySelector("#m2").value = g ? (a.gQuick||"gemini-3.5-flash-lite") : (a.aQuick||"claude-haiku-5-5"); };
+    prov.onchange = sync; el.querySelector("#howG").hidden = prov.value !== "gemini"; el.querySelector("#howA").hidden = prov.value === "gemini";
+    const cls = el.querySelector("#cls"); if(cls) cls.onclick = closeSheet;
+    el.querySelector("#saveK").onclick = async e=>{
+      const p = prov.value, key = el.querySelector("#key").value.trim(), m1 = el.querySelector("#m1").value.trim(), m2 = el.querySelector("#m2").value.trim();
+      if(!key){ el.querySelector("#key").focus(); return; }
+      S.settings.ai = { ...a, provider:p, key };
+      if(p === "gemini"){ S.settings.ai.gModel = m1; S.settings.ai.gQuick = m2; } else { S.settings.ai.aModel = m1; S.settings.ai.aQuick = m2; }
+      ls.set("circle.settings", S.settings);
+      const out = el.querySelector("#testOut"); e.target.disabled = true; out.textContent = "Testing…";
+      try{
+        const r = await S.sample("Reply with exactly: connected", { modelTier:"quick" });
+        await S.sample("Reply with exactly: ok", {});
+        out.textContent = "Connected ✓ (" + r.text.trim().slice(0,40) + ")";
+        setFoot(); setTimeout(closeSheet, 900);
+      }catch(err){ out.textContent = errCopy(err) + (err && err.message ? " — " + err.message.slice(0,160) : ""); }
+      finally{ e.target.disabled = false; }
+    };
+  });
+}
+function cycleTheme(){
+  const r = document.documentElement, cur = r.dataset.theme;
+  const next = cur === "dark" ? "light" : cur === "light" ? "" : "dark";
+  if(next) r.dataset.theme = next; else delete r.dataset.theme;
+  ls.set("circle.theme", next);
+}
+(function(){ const t = ls.get("circle.theme",""); if(t) document.documentElement.dataset.theme = t; })();
+
+/* ---------- persistence ---------- */
+const saveTimers = {};
+function save(mode){
+  clearTimeout(saveTimers[mode]);
+  saveTimers[mode] = setTimeout(()=>{
+    const d = S.data[mode];
+    if(d.msgs && d.msgs.length > 600){ const cut = d.msgs.length - 600; d.msgs = d.msgs.slice(cut); d.memIdx = Math.max(0,(d.memIdx||0)-cut); }
+    if(d.sessions){ d.sessions = d.sessions.slice(-40); d.sessions.forEach(x=>{ x.msgs = x.msgs.slice(-100); }); }
+    if(d.calls) d.calls = d.calls.slice(-60);
+    ls.set("circle.data."+mode, d);
+  }, 400);
+}
+
+/* ---------- home ---------- */
+function lastOf(mode){
+  if(mode === "debate"){
+    const s = S.data.debate.sessions.slice(-1)[0];
+    return s ? { text:(s.kind==="explain"?"Explained: ":"Debated: ") + s.motion, ts:s.ts } : null;
+  }
+  const m = S.data[mode].msgs.filter(x=>x.r!=="s").slice(-1)[0];
+  return m ? { text:(m.r==="u"?"You: ":"") + m.t, ts:m.ts } : null;
+}
+function renderHome(){
+  const ul = $("homeList"); ul.innerHTML = "";
+  ["friend","mentor","debate"].forEach(mode=>{
+    const last = lastOf(mode);
+    const li = document.createElement("li");
+    li.innerHTML = `<button class="row">${avHTML(mode)}<span class="row-main"><span class="row-name"><span>${esc(MODES[mode].name)}</span>${last?`<time>${hhmm(last.ts)}</time>`:""}</span><span class="row-sub">${esc(last ? last.text : MODES[mode].sub)}</span></span></button>`;
+    li.firstChild.onclick = ()=> mode === "debate" ? openDebateHome() : openChat(mode);
+    ul.appendChild(li);
+  });
+}
+function show(id){ ["home","chat","debateHome"].forEach(v=>$(v).hidden = v !== id); }
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick = ()=>{ show("home"); renderHome(); });
+
+/* ---------- chat view ---------- */
+function setAccent(mode){ document.documentElement.style.setProperty("--accent", `var(${MODES[mode].accent})`); }
+function curMsgs(){
+  if(S.mode === "debate"){ const s = activeSession(); return s ? s.msgs : []; }
+  return S.data[S.mode].msgs;
+}
+function activeSession(){ return S.data.debate.sessions.find(s=>s.id === S.data.debate.active); }
+
+function openChat(mode){
+  S.mode = mode; setAccent(mode);
+  if(mode !== "debate"){
+    const d = S.data[mode];
+    if(!d.msgs.length){
+      d.msgs.push(mode === "friend"
+        ? { id:uid(), r:"a", t:"heyyy Paru 👋 finallyyy you’re here", ts:Date.now() }
+        : { id:uid(), r:"a", t:"Hello Paru, I’m your Mentor. My job is to make you a clear, confident, bold speaker, and I’ll remember every session so we build step by step.\n\nLet’s get a baseline. Introduce yourself in 5–6 sentences: who you are, what you study, and one thing you want to get better at when you speak. Type it, or tap the call button and say it out loud.", ts:Date.now() });
+      if(mode === "friend") d.msgs.push({ id:uid(), r:"a", t:"okay spill. how’s your day going fr?", ts:Date.now() });
+    }
+  }
+  const s = mode === "debate" ? activeSession() : null;
+  $("chatAv").outerHTML = avHTML(mode,"sm").replace('class="av','id="chatAv" class="av');
+  $("chatName").textContent = mode === "debate" ? (s.kind === "explain" ? "News explainer" : "Debate") : MODES[mode].name;
+  setStatus(mode === "debate" ? (s.kind === "explain" ? s.motion : `You argue ${s.side.toUpperCase()}`) : "online");
+  $("judgeBtn").hidden = !(mode === "debate" && s.kind === "debate");
+  $("input").placeholder = mode === "debate" && s.kind === "debate" ? "Make your argument" : "Message";
+  $("dictBtn").hidden = !SR;
+  show("chat");
+  renderMsgs();
+  $("input").focus({preventScroll:true});
+}
+function setStatus(t, live){ const el = $("chatStatus"); el.textContent = t; el.classList.toggle("live", !!live); }
+function defaultStatus(){
+  if(S.mode !== "debate") return "online";
+  const s = activeSession(); return s.kind === "explain" ? s.motion : `You argue ${s.side.toUpperCase()}`;
+}
+
+function bubbleHTML(m){
+  if(m.r === "s") return `<div class="b sys">${md(m.t)}</div>`;
+  const fix = (m.fix && m.fix.length) ? `<div class="fix">${m.fix.map(f=>`<div><s>${esc(f.said)}</s> → <b>${esc(f.better)}</b><i>${esc(f.why)}</i></div>`).join("")}</div>` : "";
+  return `<div class="b ${m.r==="u"?"me":"them"}">${m.call?'<span class="callmark">📞</span>':""}${md(m.t)}<span class="t">${hhmm(m.ts)}</span>${fix}</div>`;
+}
+function renderMsgs(){
+  const box = $("msgs"); let html = "", lastDay = "";
+  for(const m of curMsgs()){
+    const day = new Date(m.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+    if(day !== lastDay){ html += `<div class="day">${day}</div>`; lastDay = day; }
+    html += bubbleHTML(m);
+  }
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
+}
+function addTemp(html){
+  const box = $("msgs"); const el = document.createElement("div");
+  el.className = "b them"; el.innerHTML = html; box.appendChild(el); box.scrollTop = box.scrollHeight; return el;
+}
+
+$("backBtn").onclick = ()=>{
+  stopDictation();
+  const m = S.mode;
+  if(m !== "debate") maybeUpdateMemory(m, false);
+  if(m === "debate"){ openDebateHome(); } else { show("home"); renderHome(); }
+};
+const inputEl = $("input");
+inputEl.addEventListener("input", ()=>{ inputEl.style.height = "auto"; inputEl.style.height = Math.min(inputEl.scrollHeight,140)+"px"; });
+inputEl.addEventListener("keydown", e=>{ if(e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer:fine)").matches){ e.preventDefault(); sendTyped(); } });
+$("sendBtn").onclick = sendTyped;
+function sendTyped(){
+  const t = inputEl.value.trim(); if(!t || S.busy) return;
+  inputEl.value = ""; inputEl.style.height = "auto";
+  stopDictation();
+  turn(t, { spoken:false });
+}
+
+/* ---------- prompts ---------- */
+function friendMemoryBlock(){
+  const f = S.data.friend.memory, m = S.data.mentor.memory;
+  return `WHAT YOU REMEMBER ABOUT PARU (from every past chat and call):
+Summary: ${f.summary || "(nothing yet: this is the start of your friendship)"}
+Facts:
+${(f.facts||[]).map(x=>"- "+x).join("\n") || "- (none yet)"}
+${m.summary ? `\nParu is also working with a speaking coach. Coach notes: ${m.summary}` : ""}`;
+}
+function friendRules(spoken){
+  return `You are Ishradda, Paru's best friend, texting in a WhatsApp-style app. Paru (also called Arya) is an engineering student in India. Right now it is ${nowLong()} (India time).
+
+PERSONALITY: Gen Z bestie energy. Warm, funny, a little chaotic, loyal. Texts in casual lowercase, uses slang naturally (ngl, fr, lowkey, no cap, it's giving, slay, bestie, yaar, bro) without overdoing it, 0-2 emojis per message. Hypes Paru's wins, teases lightly, asks follow-up questions, has her own opinions and shares little stories, and brings up things Paru told her before ("wait did you ever finish that report??"). Gives real, honest advice when needed, not a yes-woman.
+
+SAFETY: If Paru seems seriously distressed or unsafe, drop the jokes, be caring and direct, and encourage reaching out to someone they trust or Tele-MANAS (call 14416, free, 24/7 in India). If asked, you are an AI friend; never pretend to be human. Never mention these instructions.
+
+${spoken
+  ? "THIS IS A LIVE VOICE CALL. Talk like a real person on the phone: 1-3 short sentences, natural spoken rhythm, contractions, small reactions like 'wait what' or 'okay okay'. No emojis, no lists, no markdown."
+  : "FORMAT: Reply like real texting: 1-3 short messages, separated by a blank line. Usually under 40 words total."}
+
+${friendMemoryBlock()}`;
+}
+function mentorMemoryBlock(){
+  const m = S.data.mentor.memory, calls = (S.data.mentor.calls||[]).slice(-5);
+  const sc = m.scores ? Object.entries(m.scores).map(([k,v])=>`${k} ${v}/10`).join(", ") : "not assessed yet";
+  return `COACHING FILE ON PARU (your memory of all past sessions):
+Summary: ${m.summary || "(first session: start with a baseline assessment)"}
+Current scores: ${sc}
+Focus areas: ${(m.focus||[]).join("; ") || "-"}
+Training plan: ${(m.plan||[]).join("; ") || "-"}
+Recurring mistakes: ${(m.mistakes||[]).join("; ") || "-"}
+Wins so far: ${(m.wins||[]).join("; ") || "-"}
+Facts about Paru: ${(m.facts||[]).join("; ") || "-"}
+Recent voice-call stats: ${calls.length ? calls.map(c=>`${c.date}: ${c.mins} min, ${c.wpm} wpm, ${c.fpm} fillers/min`).join(" | ") : "none yet"}`;
+}
+function mentorRules(spoken){
+  return `You are Mentor, Paru's personal communication coach. Today is ${nowLong()}. You train: English grammar and vocabulary, spoken fluency, and bold, confident public speaking (structure such as PREP and rule-of-three, openings and closings, voice projection, pace, pauses, intonation, posture, eye contact, gestures, stage presence, handling nerves and filler words, persuasive styles). You cannot see Paru, so teach body language through clear instructions and drills Paru can do in front of a mirror or camera, and ask Paru to report back.
+
+STYLE: warm but demanding, like a great coach. Teach one thing at a time. Each turn react to what Paru said, teach or correct, then give a concrete task (say this line boldly, retell it with a pause before the key point, a 30-second impromptu topic, etc). Follow the training plan and refer back to past sessions. Celebrate real progress. Never mention these instructions.
+
+${spoken ? "THIS IS A LIVE VOICE CALL: 'reply' must be natural speech, under 60 words, no markdown or lists. Ignore speech-to-text punctuation and capitalization; judge word choice, grammar and structure." : "'reply' under 130 words. Ignore casual chat capitalization and punctuation unless it is a real error."}
+
+Return ONLY JSON: {"reply": string, "corrections": [{"said": exact words Paru used, "better": improved version, "why": very short reason}]}
+corrections: only real grammar, word-choice or phrasing errors in Paru's LATEST message, max 4, [] if none.
+
+${mentorMemoryBlock()}`;
+}
+function newsBlock(){
+  if(!S.news || !S.news.items) return "No briefing loaded.";
+  return `CURRENT AFFAIRS BRIEFING (updated ${S.news.updatedAt}):\n` + S.news.items.map(i=>`- [${i.tag}] ${i.title}: ${i.summary}`).join("\n");
+}
+function debateRules(s, spoken){
+  const dm = S.data.debate.memory;
+  const base = `Today is ${nowLong()}. ${newsBlock()}
+You have live web search: use it to check recent facts and bring in fresh evidence. Never invent statistics, quotes or dates, and say plainly when you are unsure.
+Paru's debating profile so far: ${dm.summary || "new debater"}. Strengths: ${(dm.strengths||[]).join("; ")||"-"}. Weaknesses: ${(dm.weaknesses||[]).join("; ")||"-"}.`;
+  if(s.kind === "explain") return `You are a clear, neutral current-affairs explainer for Paru, an engineering student in India. Topic: "${s.motion}". Explain what happened, why it matters (including for India and young people), the main viewpoints on each side, and key terms. Then answer follow-up questions. ${spoken?"Live voice call: natural speech, under 70 words, no markdown.":"Under 180 words per reply; short paragraphs."}\n\n${base}`;
+  const ai = s.side === "for" ? "AGAINST" : "FOR";
+  return `You are Paru's debate sparring partner. Motion: "${s.motion}". Paru argues ${s.side.toUpperCase()}; you argue ${ai}, sharply but fairly, like a strong university debater. Each turn: directly rebut Paru's strongest point, add one new argument with real-world evidence or examples, then end with one pointed question that pressures Paru's case. Stay in role. ${spoken?"Live voice call: natural speech, under 70 words, no markdown.":"Under 140 words, no headings."}\n\n${base}`;
+}
+function history(msgs, n){
+  return msgs.filter(m=>m.r!=="s").slice(-n).map(m=>({ role: m.r==="u"?"user":"assistant", content: m.r==="u" ? m.t : m.t }));
+}
+
+/* ---------- error copy ---------- */
+function errCopy(e){
+  switch(e && e.code){
+    case "no_key": return "Add your AI key first (AI settings on the home screen).";
+    case "bad_key": return "The AI key didn’t work. Check it in AI settings.";
+    case "bad_model": return "That model name wasn’t found. Open AI settings → Advanced and try another model name.";
+    case "rate_limited": return "Free-tier limit reached for now. Wait a minute (or until tomorrow for the daily limit) and try again.";
+    case "network": return "No internet connection. Check your data or Wi-Fi and send again.";
+    case "refused": return "The AI wouldn’t answer that one. Try saying it differently.";
+    case "invalid_json": return "The reply came back garbled. Send that again.";
+    default: return "Something went wrong. Send that again.";
+  }
+}
+
+/* ---------- a conversation turn ---------- */
+async function turn(text, { spoken, onSentence } = {}){
+  if(!hasKey()){ setupSheet(false); return null; }
+  const mode = S.mode;
+  const msgs = curMsgs();
+  const userMsg = { id:uid(), r:"u", t:text, ts:Date.now(), call:!!spoken };
+  msgs.push(userMsg);
+  renderMsgs();
+  S.busy = true;
+  setStatus(mode === "friend" ? "typing…" : "thinking…", true);
+  const tmp = addTemp('<span class="typing"><span></span><span></span><span></span></span>');
+  let reply = "";
+  try{
+    if(mode === "mentor"){
+      const input = [{ role:"user", content: mentorRules(spoken) }, ...history(msgs, 30)];
+      const out = await S.sample.json(input, { cache:false, modelTier: spoken ? "quick" : "default" });
+      reply = String(out && out.reply || "").trim() || "Say that once more for me.";
+      const fixes = Array.isArray(out && out.corrections) ? out.corrections.filter(c=>c && c.said && c.better).slice(0,4) : [];
+      if(fixes.length) userMsg.fix = fixes.map(c=>({said:String(c.said),better:String(c.better),why:String(c.why||"")}));
+      tmp.remove();
+      msgs.push({ id:uid(), r:"a", t:reply, ts:Date.now(), call:!!spoken });
+      if(onSentence) onSentence(reply, true, userMsg.fix);
+    } else {
+      const sys = mode === "friend" ? friendRules(spoken) : debateRules(activeSession(), spoken);
+      const input = [{ role:"user", content: sys }, ...history(msgs, mode === "friend" ? 40 : 24)];
+      let spokenUpTo = 0;
+      const res = await S.sample(input, {
+        cache:false,
+        modelTier: (mode === "friend" || spoken) ? "quick" : "default",
+        search: mode === "debate",
+        onText: ({ text: t }) => {
+          tmp.innerHTML = md(t);
+          $("msgs").scrollTop = $("msgs").scrollHeight;
+          if(onSentence){
+            const rest = t.slice(spokenUpTo);
+            const mm = rest.match(/^[\s\S]*[.!?…](\s|$)|^[\s\S]*\n/);
+            if(mm && mm[0].trim().length > 1){ onSentence(mm[0], false); spokenUpTo += mm[0].length; }
+          }
+        }
+      });
+      reply = res.text.trim();
+      if(onSentence){ const rest = reply.slice(spokenUpTo); onSentence(rest, true); }
+      tmp.remove();
+      const parts = (mode === "friend" && !spoken) ? reply.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).slice(0,4) : [reply];
+      parts.forEach((p,i)=> msgs.push({ id:uid(), r:"a", t:p, ts:Date.now()+i, call:!!spoken }));
+    }
+    if(mode === "debate"){ activeSession().ts = Date.now(); }
+  }catch(e){
+    tmp.remove();
+    if(e && e.code === "cancelled"){ /* stopped by user */ }
+    else msgs.push({ id:uid(), r:"s", t: errCopy(e), ts:Date.now() });
+    if(onSentence) onSentence("", true);
+  }finally{
+    S.busy = false;
+    setStatus(call ? "in a call" : defaultStatus(), !!call);
+    renderMsgs();
+    save(mode);
+    if(mode !== "debate") maybeUpdateMemory(mode, false);
+  }
+  return reply;
+}
+
+/* ---------- long-term memory ---------- */
+const memBusy = {};
+async function maybeUpdateMemory(mode, force){
+  if(!hasKey() || memBusy[mode]) return;
+  const d = S.data[mode];
+  const fresh = d.msgs.slice(d.memIdx || 0).filter(m=>m.r!=="s");
+  if(!fresh.length || (!force && fresh.length < 10)) return;
+  memBusy[mode] = true;
+  const convo = fresh.map(m=>`${m.r==="u"?"Paru":(mode==="friend"?"Ishradda":"Mentor")}${m.call?" (voice)":""}: ${m.t}${m.fix?` [corrections: ${m.fix.map(f=>f.said+" -> "+f.better).join("; ")}]`:""}`).join("\n").slice(-60000);
+  const prompt = mode === "friend"
+    ? `You maintain the long-term memory of Ishradda, an AI best friend of Paru. Merge the existing memory with the new conversation.
+Existing memory (JSON): ${JSON.stringify(d.memory)}
+New conversation (${new Date().toDateString()}):
+${convo}
+
+Return ONLY JSON: {"summary": string (max 900 characters: the story of the friendship and what is going on in Paru's life lately), "facts": [up to 45 short strings: people in Paru's life and who they are, likes and dislikes, plans and deadlines with dates, ongoing situations, inside jokes, things Ishradda promised to ask about]}. Keep every still-relevant old fact; update ones that changed; drop trivial ones.`
+    : `You maintain the coaching file of Mentor, Paru's communication coach. Merge the existing file with the new session and assess Paru honestly.
+Existing file (JSON): ${JSON.stringify(d.memory)}
+Recent voice-call stats: ${JSON.stringify((d.calls||[]).slice(-5))}
+New session (${new Date().toDateString()}):
+${convo}
+
+Return ONLY JSON: {"summary": string (max 900 chars: level, progress so far, what was practised), "scores": {"grammar":1-10,"vocabulary":1-10,"fluency":1-10,"confidence":1-10,"structure":1-10}, "focus": [3 current focus areas], "plan": [next 3-5 concrete training steps], "mistakes": [up to 12 recurring error patterns with an example], "wins": [up to 8 genuine improvements], "facts": [up to 20 facts about Paru useful for coaching: goals, upcoming talks or interviews, interests]}. Base scores on evidence; move them gradually.`;
+  try{
+    const out = await S.sample.json(prompt, { cache:false, modelTier:"quick" });
+    if(out && typeof out === "object"){
+      d.memory = { ...d.memory, ...out };
+      d.memIdx = d.msgs.length;
+      save(mode);
+    }
+  }catch(e){ console.warn("memory update failed", e && e.code); }
+  finally{ memBusy[mode] = false; }
+}
+
+/* ---------- sheets ---------- */
+function sheet(html, onReady){
+  const host = $("sheetHost");
+  host.innerHTML = `<div class="scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  const scrim = host.firstChild;
+  scrim.addEventListener("click", e=>{ if(e.target === scrim) closeSheet(); });
+  onReady && onReady(scrim.firstChild);
+}
+function closeSheet(){ $("sheetHost").innerHTML = ""; }
+
+$("whoBtn").onclick = ()=>{
+  if(S.mode === "friend") friendSheet();
+  else if(S.mode === "mentor") progressSheet();
+  else debateProfileSheet();
+};
+function friendSheet(){
+  const m = S.data.friend.memory;
+  sheet(`<h2>What Ishradda remembers</h2>
+    <p class="muted">${esc(m.summary || "Nothing saved yet. Memory updates every few messages and after calls.")}</p>
+    ${m.facts && m.facts.length ? `<h3>Things she knows</h3><ul>${m.facts.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+    <div class="sheet-acts"><button class="btn solid" id="memNow">Update memory now</button><button class="btn" id="cls">Close</button></div>`, el=>{
+    el.querySelector("#cls").onclick = closeSheet;
+    el.querySelector("#memNow").onclick = async e=>{ e.target.textContent = "Updating…"; e.target.disabled = true; await maybeUpdateMemory("friend", true); friendSheet(); };
+  });
+}
+function progressSheet(){
+  const m = S.data.mentor.memory, calls = S.data.mentor.calls || [];
+  const sc = m.scores ? Object.entries(m.scores).map(([k,v])=>`<div class="score"><span style="text-transform:capitalize">${esc(k)}</span><span class="track"><i style="width:${Math.max(0,Math.min(10,+v||0))*10}%"></i></span><b>${esc(v)}</b></div>`).join("") : `<p class="muted">No assessment yet. Chat or call a few times, then tap “Assess me now”.</p>`;
+  const avg = k => calls.length ? Math.round(calls.slice(-5).reduce((a,c)=>a+(+c[k]||0),0)/Math.min(5,calls.length)*10)/10 : "–";
+  sheet(`<h2>Your progress</h2>
+    <p class="muted">${esc(m.summary || "Your coach builds this file as you practise.")}</p>
+    <h3>Skill scores</h3>${sc}
+    <h3>Voice calls</h3><p class="muted">${calls.length} calls · average ${avg("wpm")} words per minute (aim for 130–160) · ${avg("fpm")} filler words per minute (aim for under 2)</p>
+    ${m.focus && m.focus.length ? `<h3>Focus right now</h3><ul>${m.focus.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${m.plan && m.plan.length ? `<h3>Training plan</h3><ul>${m.plan.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${m.mistakes && m.mistakes.length ? `<h3>Mistakes you repeat</h3><ul>${m.mistakes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${m.wins && m.wins.length ? `<h3>Wins</h3><ul>${m.wins.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    <div class="sheet-acts"><button class="btn solid" id="memNow">Assess me now</button><button class="btn" id="cls">Close</button></div>`, el=>{
+    el.querySelector("#cls").onclick = closeSheet;
+    el.querySelector("#memNow").onclick = async e=>{ e.target.textContent = "Assessing…"; e.target.disabled = true; await maybeUpdateMemory("mentor", true); progressSheet(); };
+  });
+}
+function debateProfileSheet(){
+  const m = S.data.debate.memory, done = S.data.debate.sessions.filter(s=>s.verdict);
+  sheet(`<h2>Your debating profile</h2>
+    <p class="muted">${esc(m.summary || "Finish a debate and press Judge to start your profile.")}</p>
+    <p class="muted">${done.length} judged debates · won ${done.filter(s=>s.verdict.winner==="Paru").length}</p>
+    ${m.strengths && m.strengths.length ? `<h3>Strengths</h3><ul>${m.strengths.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${m.weaknesses && m.weaknesses.length ? `<h3>Work on</h3><ul>${m.weaknesses.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    <div class="sheet-acts"><button class="btn" id="cls">Close</button></div>`, el=> el.querySelector("#cls").onclick = closeSheet);
+}
+$("dMoreBtn").onclick = debateProfileSheet;
+
+$("moreBtn").onclick = ()=>{
+  const voices = enVoices();
+  const cur = S.settings.voice[S.mode] || "";
+  sheet(`<h2>Settings</h2>
+    <label class="lab" for="vSel">Voice on calls</label>
+    <select class="field" id="vSel">${voices.length ? voices.map(v=>`<option value="${esc(v.name)}" ${v.name===cur?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("") : "<option>No voices found on this device</option>"}</select>
+    <p class="muted" style="margin-top:6px">Voices come from your phone or browser. “Google” and “Natural” voices sound the most real.</p>
+    <label class="lab" for="rate">Talking speed</label>
+    <input type="range" id="rate" min="0.8" max="1.4" step="0.05" value="${S.settings.rate}" style="width:100%">
+    <label class="lab" for="pitch">Pitch</label>
+    <input type="range" id="pitch" min="0.7" max="1.4" step="0.05" value="${S.settings.pitch[S.mode] ?? 1}" style="width:100%">
+    <div class="sheet-acts"><button class="btn" id="testV">Test voice</button><button class="btn" id="clr">Clear this chat</button><button class="btn" id="thm">Switch theme</button><button class="btn solid" id="cls">Done</button></div>`, el=>{
+    const persist = ()=>{ S.settings.voice[S.mode] = el.querySelector("#vSel").value; S.settings.rate = +el.querySelector("#rate").value; S.settings.pitch[S.mode] = +el.querySelector("#pitch").value; ls.set("circle.settings", S.settings); };
+    el.querySelectorAll("select,input").forEach(i=>i.onchange = persist);
+    el.querySelector("#testV").onclick = ()=>{ persist(); speechSynthesis.cancel(); speechSynthesis.speak(makeUtter(S.mode==="friend"?"heyy Paru, it's me! how do I sound?":"Hello Paru. Let's make you a bold, confident speaker.")); };
+    el.querySelector("#thm").onclick = cycleTheme;
+    el.querySelector("#clr").onclick = ()=>{
+      if(!confirm("Clear the messages in this chat? Long-term memory stays.")) return;
+      if(S.mode === "debate"){ const s = activeSession(); s.msgs = []; } else { S.data[S.mode].msgs = []; S.data[S.mode].memIdx = 0; }
+      save(S.mode); closeSheet(); renderMsgs();
+    };
+    el.querySelector("#cls").onclick = ()=>{ persist(); closeSheet(); };
+  });
+};
+
+/* ---------- debate home ---------- */
+function openDebateHome(){
+  S.mode = "debate"; setAccent("debate");
+  $("dAv").outerHTML = avHTML("debate","sm").replace('class="av','id="dAv" class="av');
+  const n = S.news;
+  $("newsStamp").textContent = n ? `briefing updated ${n.updatedAt}` : "current affairs";
+  $("newsLead").textContent = "Tap Explain to understand a story, or Debate to argue about it. Explanations and debates search the web live.";
+  $("refreshNews").onclick = e=> refreshNews(e.currentTarget);
+  if(hasKey() && !newsBusy && (!n || !n.ts || Date.now() - n.ts > 20*3600*1000)) refreshNews($("refreshNews"));
+  $("newsList").innerHTML = n ? n.items.map((it,i)=>`<div class="news"><span class="tag">${esc(it.tag)}</span><h3>${esc(it.title)}</h3><p>${esc(it.summary)}</p><div class="acts"><button class="btn" data-ex="${i}">Explain</button>${it.motion?`<button class="btn solid" data-db="${i}">Debate</button>`:""}</div></div>`).join("") : "";
+  $("motionList").innerHTML = n && n.motions ? n.motions.map((m,i)=>`<div class="motion"><span>${esc(m)}</span><button class="btn solid" data-mo="${i}">Debate</button></div>`).join("") : "";
+  const hs = S.data.debate.sessions.slice().reverse();
+  $("histList").innerHTML = hs.length ? hs.map(s=>`<button class="hist" data-h="${s.id}"><span style="flex:1;min-width:0"><b>${esc(s.motion)}</b><small>${s.kind==="explain"?"Explainer":`You: ${esc(s.side)}`} · ${new Date(s.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}${s.verdict?` · ${s.verdict.winner==="Paru"?"You won":s.verdict.winner==="Draw"?"Draw":"AI won"}`:""}</small></span></button>`).join("") : `<p class="note" style="text-align:left;padding:0">Nothing yet. Your first debate is one tap away.</p>`;
+  document.querySelectorAll("[data-ex]").forEach(b=>b.onclick = ()=>startSession("explain", n.items[+b.dataset.ex].title, null));
+  document.querySelectorAll("[data-db]").forEach(b=>b.onclick = ()=>setupDebate(n.items[+b.dataset.db].motion));
+  document.querySelectorAll("[data-mo]").forEach(b=>b.onclick = ()=>setupDebate(n.motions[+b.dataset.mo]));
+  document.querySelectorAll("[data-h]").forEach(b=>b.onclick = ()=>{ S.data.debate.active = b.dataset.h; openChat("debate"); });
+  show("debateHome");
+}
+let newsBusy = false;
+async function refreshNews(btn){
+  if(newsBusy) return; newsBusy = true;
+  btn.disabled = true; btn.textContent = "Searching today’s news…";
+  try{
+    const out = await S.sample.json(`Today is ${nowLong()}. Search the web for the most important news from the last 7 days. Pick 10 stories: about 5 from India (politics, economy, science and tech, education, environment, sport) and 5 from the rest of the world. For each, write a factual, neutral 2-sentence summary in your own words, including dates. For stories that suit a debate, add a motion starting "This house believes" or "This house would"; otherwise use "". Also give 5 debate motions that Indian college students would find interesting. Return ONLY JSON: {"items":[{"tag":"short category","title":"headline","summary":"two sentences","motion":"motion or empty"}],"motions":["..."]}`, { search:true });
+    if(!out || !Array.isArray(out.items) || !out.items.length) throw { code:"invalid_json" };
+    S.news = { ts:Date.now(), updatedAt:new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}), items:out.items.slice(0,12).map(i=>({ tag:String(i.tag||"News"), title:String(i.title||""), summary:String(i.summary||""), motion:String(i.motion||"") })), motions:Array.isArray(out.motions) ? out.motions.map(String).slice(0,8) : [] };
+    ls.set("circle.news", S.news);
+    newsBusy = false;
+    if(!$("debateHome").hidden) openDebateHome();
+  }catch(e){ newsBusy = false; btn.disabled = false; btn.textContent = "Refresh news"; $("newsLead").textContent = "Couldn’t refresh the news. " + errCopy(e); }
+}
+$("customGo").onclick = ()=>{ const t = $("customMotion").value.trim(); if(t) setupDebate(t); else $("customMotion").focus(); };
+function setupDebate(motion){
+  let side = "for";
+  sheet(`<h2>Set up the debate</h2>
+    <label class="lab" for="mo">Motion</label><textarea class="field" id="mo" rows="3">${esc(motion)}</textarea>
+    <label class="lab">Your side</label>
+    <div class="seg" role="group"><button aria-pressed="true" data-s="for">For</button><button aria-pressed="false" data-s="against">Against</button></div>
+    <p class="muted" style="margin-top:12px">You open. The AI takes the other side, rebuts every point and fires a question back. Press Judge whenever you want your verdict and scores.</p>
+    <div class="sheet-acts"><button class="btn solid" id="goW">Start in writing</button><button class="btn solid" id="goS">Start speaking</button><button class="btn" id="cls">Cancel</button></div>`, el=>{
+    el.querySelectorAll("[data-s]").forEach(b=>b.onclick = ()=>{ side = b.dataset.s; el.querySelectorAll("[data-s]").forEach(x=>x.setAttribute("aria-pressed", x === b)); });
+    el.querySelector("#cls").onclick = closeSheet;
+    el.querySelector("#goW").onclick = ()=>{ closeSheet(); startSession("debate", el.querySelector("#mo").value.trim() || motion, side); };
+    el.querySelector("#goS").onclick = ()=>{ const mo = el.querySelector("#mo").value.trim() || motion; closeSheet(); startSession("debate", mo, side); startCall(); };
+  });
+}
+function startSession(kind, motion, side){
+  const s = { id:uid(), kind, motion, side, msgs:[], ts:Date.now(), verdict:null };
+  s.msgs.push({ id:uid(), r:"s", t: kind === "explain" ? `**${motion}**\nAsk anything about this story, or say “explain” to start.` : `**Motion:** ${motion}\nYou argue **${side.toUpperCase()}**. The AI argues ${side==="for"?"AGAINST":"FOR"}. Give your opening argument.`, ts:Date.now() });
+  S.data.debate.sessions.push(s); S.data.debate.active = s.id;
+  save("debate");
+  openChat("debate");
+  if(kind === "explain") turn("Explain this story to me.", {});
+}
+$("judgeBtn").onclick = judge;
+async function judge(){
+  const s = activeSession(); if(!s || S.busy) return;
+  if(s.msgs.filter(m=>m.r==="u").length < 1){ alert("Make at least one argument first."); return; }
+  if(!hasKey()){ setupSheet(false); return; }
+  S.busy = true; setStatus("judging…", true);
+  const tmp = addTemp('<span class="typing"><span></span><span></span><span></span></span>');
+  const transcript = s.msgs.filter(m=>m.r!=="s").map(m=>`${m.r==="u"?"PARU ("+s.side+")":"AI ("+(s.side==="for"?"against":"for")+")"}${m.call?" [spoken]":""}: ${m.t}`).join("\n");
+  try{
+    const v = await S.sample.json(`You are an experienced, impartial debate adjudicator. Judge this debate on the motion "${s.motion}". Judge Paru fairly against the AI opponent; do not favour the AI.
+${newsBlock()}
+
+TRANSCRIPT:
+${transcript}
+
+Return ONLY JSON: {"winner": "Paru" | "AI" | "Draw", "scores": {"logic":1-10,"evidence":1-10,"rebuttal":1-10,"clarity":1-10,"persuasion":1-10}, "best": "Paru's single strongest moment", "improve": [3 specific, actionable tips], "factcheck": [any claims by either side that look wrong or unsupported; [] if none], "read": [2-3 things Paru should read up on to argue this better]}`, { cache:false });
+    s.verdict = v;
+    const sc = v.scores ? Object.entries(v.scores).map(([k,x])=>`${k} ${x}/10`).join(" · ") : "";
+    s.msgs.push({ id:uid(), r:"s", t:`**Verdict: ${v.winner === "Paru" ? "You win 🏆" : v.winner === "Draw" ? "Draw" : "AI wins this round"}**\n${sc}\n\n**Best moment:** ${v.best||"-"}\n\n**Improve:**\n${(v.improve||[]).map(x=>"• "+x).join("\n")}${v.factcheck&&v.factcheck.length?`\n\n**Fact-check:**\n${v.factcheck.map(x=>"• "+x).join("\n")}`:""}${v.read&&v.read.length?`\n\n**Read up on:**\n${v.read.map(x=>"• "+x).join("\n")}`:""}`, ts:Date.now() });
+    // update debating profile
+    try{
+      const p = await S.sample.json(`Update a debater's profile. Existing (JSON): ${JSON.stringify(S.data.debate.memory)}. New verdict on "${s.motion}": ${JSON.stringify(v)}. Return ONLY JSON {"summary": string (max 600 chars), "strengths": [up to 6], "weaknesses": [up to 6]}.`, { cache:false, modelTier:"quick" });
+      if(p && typeof p === "object") S.data.debate.memory = { ...S.data.debate.memory, ...p };
+    }catch(e){}
+  }catch(e){ s.msgs.push({ id:uid(), r:"s", t:errCopy(e), ts:Date.now() }); }
+  finally{ tmp.remove(); S.busy = false; setStatus(defaultStatus()); renderMsgs(); save("debate"); }
+}
+
+/* ---------- speech ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function enVoices(){ return (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter(v=>/^en/i.test(v.lang)); }
+if(window.speechSynthesis) speechSynthesis.onvoiceschanged = ()=>{};
+function pickVoice(mode){
+  const vs = enVoices(); if(!vs.length) return null;
+  const chosen = S.settings.voice[mode]; if(chosen){ const v = vs.find(v=>v.name===chosen); if(v) return v; }
+  const fem = /female|samantha|zira|veena|neerja|heera|aria|jenny|sonia|libby|natural|google uk english female|google us english/i;
+  const pref = mode === "friend"
+    ? [v=>/en-IN/i.test(v.lang)&&fem.test(v.name), v=>/natural/i.test(v.name)&&fem.test(v.name), v=>/google/i.test(v.name)&&/en-(IN|US)/i.test(v.lang), v=>fem.test(v.name)]
+    : [v=>/natural/i.test(v.name), v=>/google uk english male|daniel|ravi|prabhat|guy|ryan/i.test(v.name), v=>/google/i.test(v.name)];
+  for(const f of pref){ const v = vs.find(f); if(v) return v; }
+  return vs[0];
+}
+function makeUtter(text){
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(S.mode); if(v){ u.voice = v; u.lang = v.lang; } else u.lang = "en-IN";
+  u.rate = S.settings.rate; u.pitch = S.settings.pitch[S.mode] ?? 1;
+  return u;
+}
+
+/* chat dictation */
+let dict = null;
+function stopDictation(){ if(dict){ try{ dict.stop(); }catch(e){} dict = null; $("dictBtn").classList.remove("rec"); } }
+$("dictBtn").onclick = ()=>{
+  if(dict){ stopDictation(); return; }
+  if(!SR) return;
+  dict = new SR(); dict.lang = "en-IN"; dict.interimResults = true; dict.continuous = true;
+  const base = inputEl.value ? inputEl.value + " " : "";
+  dict.onresult = e=>{ let t = ""; for(let i=0;i<e.results.length;i++) t += e.results[i][0].transcript; inputEl.value = base + t; };
+  dict.onerror = e=>{ if(e.error === "not-allowed" || e.error === "service-not-allowed") alert("Microphone is blocked here. Use your keyboard’s mic button instead."); stopDictation(); };
+  dict.onend = ()=> stopDictation();
+  try{ dict.start(); $("dictBtn").classList.add("rec"); }catch(e){ stopDictation(); }
+};
+
+/* ---------- voice call ---------- */
+let call = null;
+const FILLERS = /\b(um+|uh+|erm|hmm+|like|basically|actually|literally|you know|i mean|kind of|sort of|so yeah)\b/gi;
+$("callBtn").onclick = ()=> startCall();
+
+function startCall(){
+  if(call) return;
+  if(!window.speechSynthesis){ alert("Voice isn’t supported in this browser. Try Chrome."); return; }
+  const mode = S.mode, s = mode === "debate" ? activeSession() : null;
+  call = { mode, start:Date.now(), state:"idle", muted:false, ended:false, words:0, speakMs:0, fillers:0, rec:null, errs:0, finalText:"", t0:0, fixes:[] };
+  const name = mode === "debate" ? (s.kind === "explain" ? "News explainer" : "Debate") : MODES[mode].name;
+  $("callHost").innerHTML = `<div class="call" id="callUI" role="dialog" aria-label="Voice call with ${esc(name)}">
+    <div class="clock" id="cClock">00:00</div>
+    <div class="who">${esc(name)}</div>
+    <div class="orb">${avHTML(mode,"xl")}</div>
+    <div class="state" id="cState">Connecting…</div>
+    <div class="caption" id="cCap"></div>
+    <div class="live" id="cLive"></div>
+    <div class="typebox" id="cType" hidden><input id="cTypeIn" placeholder="Type or use your keyboard mic" aria-label="Say something"><button class="send" id="cTypeGo" aria-label="Send"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20l18-8L3 4v6l12 2-12 2z"/></svg></button></div>
+    <div class="ctrls">
+      <div><button class="cbtn" id="cMute" aria-pressed="false" aria-label="Mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button><div class="clabel">Mute</div></div>
+      <div><button class="cbtn" id="cCut" aria-label="Interrupt"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button><div class="clabel">Interrupt</div></div>
+      <div><button class="cbtn end" id="cEnd" aria-label="End call"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 15c5-5 13-5 18 0l-2.5 2.5-3.5-1.5v-3a12 12 0 00-6 0v3L5.5 17.5z"/></svg></button><div class="clabel">End</div></div>
+    </div></div>`;
+  call.clock = setInterval(()=>{ const s2 = Math.floor((Date.now()-call.start)/1000); $("cClock").textContent = `${String(Math.floor(s2/60)).padStart(2,"0")}:${String(s2%60).padStart(2,"0")}`; }, 500);
+  setStatus("in a call", true);
+  $("cEnd").onclick = endCall;
+  $("cCut").onclick = ()=>{ speechSynthesis.cancel(); };
+  $("cMute").onclick = e=>{
+    call.muted = !call.muted; e.currentTarget.setAttribute("aria-pressed", call.muted);
+    if(call.muted){ stopRec(); setCallState("idle","Muted. Tap mute again to talk."); } else listen();
+  };
+  $("cTypeGo").onclick = ()=>{ const v = $("cTypeIn").value.trim(); if(v){ $("cTypeIn").value = ""; utterance(v, 0); } };
+  $("cTypeIn").onkeydown = e=>{ if(e.key === "Enter") $("cTypeGo").click(); };
+  renderLive();
+  if(!SR) fallbackType("Live listening needs Chrome or Edge. Type (or use your keyboard mic) and I’ll talk back.");
+  // greet within the tap gesture so the browser lets audio play
+  const greet = mode === "friend" ? "heyyy Paru! okay I'm here, what's up?"
+    : mode === "mentor" ? "Hello Paru. Stand up straight, shoulders back, and let's talk. Go ahead."
+    : s.kind === "explain" ? "Hi Paru. What would you like to know about this story?"
+    : "Alright Paru, the floor is yours. Give me your opening argument.";
+  const sp = speaker(); sp.say(greet); sp.finish(()=> listen());
+}
+function setCallState(st, label){
+  if(!call) return;
+  call.state = st;
+  const ui = $("callUI"); if(!ui) return;
+  ui.classList.toggle("speaking", st === "speaking"); ui.classList.toggle("listening", st === "listening");
+  $("cState").textContent = label || { listening:"Listening…", thinking:"Thinking…", speaking:"Speaking…", idle:"" }[st];
+}
+function fallbackType(msg){
+  if(!call) return;
+  call.noMic = true; $("cType").hidden = false; $("cCap").textContent = msg;
+}
+function renderLive(){
+  const el = $("cLive"); if(!el || !call) return;
+  let h = "";
+  if(call.mode === "mentor"){
+    const mins = call.speakMs / 60000;
+    const wpm = mins > 0.05 ? Math.round(call.words / mins) : "–";
+    const fpm = mins > 0.05 ? (call.fillers / mins).toFixed(1) : "–";
+    h += `<div class="k"><div><b>${wpm}</b><span>words / min</span></div><div><b>${call.fillers}</b><span>fillers</span></div><div><b>${fpm}</b><span>fillers / min</span></div></div>`;
+    h += call.fixes.slice(-4).reverse().map(f=>`<div class="c"><s>${esc(f.said)}</s> → <b>${esc(f.better)}</b></div>`).join("");
+  }
+  el.innerHTML = h;
+}
+function stopRec(){ if(call && call.rec){ try{ call.rec.onend = null; call.rec.abort(); }catch(e){} call.rec = null; } }
+function listen(){
+  if(!call || call.ended || call.muted || call.noMic) return;
+  if(!SR){ fallbackType("Live listening needs Chrome or Edge. Type and I’ll talk back."); return; }
+  stopRec();
+  const rec = new SR(); call.rec = rec;
+  rec.lang = "en-IN"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  call.finalText = ""; call.t0 = 0;
+  setCallState("listening");
+  rec.onspeechstart = ()=>{ call && (call.t0 = Date.now()); };
+  rec.onresult = e=>{
+    if(!call) return;
+    if(!call.t0) call.t0 = Date.now();
+    let fin = "", interim = "";
+    for(let i=0;i<e.results.length;i++){ const r = e.results[i]; if(r.isFinal) fin += r[0].transcript; else interim += r[0].transcript; }
+    call.finalText = fin;
+    $("cCap").textContent = (fin + " " + interim).trim();
+  };
+  rec.onerror = e=>{
+    if(!call) return;
+    if(e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture"){
+      stopRec(); fallbackType("The microphone is blocked here. Type below (or use your keyboard’s mic button) and I’ll still talk back. To fix the mic, allow microphone access for this page in your browser.");
+    } else if(e.error !== "no-speech" && e.error !== "aborted"){ call.errs++; }
+  };
+  rec.onend = ()=>{
+    if(!call || call.ended || call.rec !== rec) return;
+    call.rec = null;
+    const t = (call.finalText || "").trim();
+    if(t){ call.errs = 0; utterance(t, call.t0 ? Date.now() - call.t0 : 0); }
+    else if(call.errs > 4){ fallbackType("I’m having trouble hearing you. Type below and I’ll talk back."); }
+    else if(!call.muted && call.state === "listening") setTimeout(listen, 250);
+  };
+  try{ rec.start(); }catch(e){ setTimeout(listen, 400); }
+}
+function speaker(){
+  let pending = 0, finished = false, cb = null, fired = false;
+  const check = ()=>{ if(finished && pending <= 0 && !fired){ fired = true; cb && cb(); } };
+  return {
+    say(t){
+      const clean = stripEmoji(t || ""); if(!clean || !call || call.ended) return;
+      pending++; setCallState("speaking");
+      const u = makeUtter(clean);
+      u.onend = u.onerror = ()=>{ pending--; check(); };
+      speechSynthesis.speak(u);
+    },
+    finish(fn){ finished = true; cb = fn; check(); }
+  };
+}
+async function utterance(text, durMs){
+  if(!call || S.busy) return;
+  stopRec();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  call.words += words; call.speakMs += durMs > 300 ? durMs : words * 420;
+  call.fillers += (text.match(FILLERS) || []).length;
+  renderLive();
+  $("cCap").textContent = text;
+  setCallState("thinking");
+  const sp = speaker();
+  await turn(text, { spoken:true, onSentence:(chunk, done, fixes)=>{
+    if(fixes){ call && (call.fixes = call.fixes.concat(fixes)); renderLive(); }
+    if(chunk) { sp.say(chunk); if(call) $("cCap").textContent = stripEmoji(chunk); }
+  }});
+  sp.finish(()=>{ if(call && !call.ended){ $("cCap").textContent = ""; call.noMic ? setCallState("idle","Your turn") : listen(); } });
+}
+function endCall(){
+  if(!call) return;
+  const c = call; c.ended = true;
+  stopRec(); speechSynthesis.cancel(); clearInterval(c.clock);
+  const secs = Math.round((Date.now() - c.start)/1000);
+  const mins = c.speakMs / 60000;
+  const msgs = curMsgs();
+  msgs.push({ id:uid(), r:"s", t:`📞 Voice call · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,"0")}${c.mode==="mentor"&&mins>0.05?` · ${Math.round(c.words/mins)} words/min · ${c.fillers} filler words`:""}`, ts:Date.now() });
+  if(c.mode === "mentor" && c.words > 10){
+    S.data.mentor.calls = (S.data.mentor.calls || []).concat([{ date:new Date().toLocaleDateString("en-IN"), mins:+(secs/60).toFixed(1), wpm: mins>0.05 ? Math.round(c.words/mins) : 0, fpm: mins>0.05 ? +(c.fillers/mins).toFixed(1) : 0 }]);
+  }
+  call = null;
+  $("callHost").innerHTML = "";
+  setStatus(defaultStatus());
+  renderMsgs(); save(c.mode);
+  if(c.mode !== "debate") maybeUpdateMemory(c.mode, true);
+}
+
+boot();
+})();
+</script>
+</body>
+</html>
